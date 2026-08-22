@@ -460,7 +460,7 @@ function zeichneRaster(){
       <div class="karten-text">
         <div class="titel">${k.titel}</div>
         ${k.notiz?`<div class="notiz">${k.notiz}</div>`:""}
-        <div class="meta"><span class="kategorie">${k.kat}</span></div>
+        <div class="meta"><span class="kategorie">${k.kat}</span>${k.jahr?`<span class="preis">${k.jahr}</span>`:""}</div>
       </div>
     </article>`).join("");
 }
