@@ -38,7 +38,7 @@
   .karte{background:var(--karte);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(38,36,31,.12);display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s}
   .karte:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(38,36,31,.16)}
   .bildbox{position:relative;aspect-ratio:3/4;background:var(--steinzeug-tief);display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .bildbox img{width:100%;height:100%;object-fit:cover;display:block}
+  .bildbox img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
   .platzhalter{font-family:"Fraunces",serif;font-size:56px;color:var(--zinn);opacity:.55}
   .nummernkarte{position:absolute;left:12px;top:12px;background:#fff;border-radius:3px;padding:4px 11px 6px;box-shadow:0 2px 5px rgba(0,0,0,.28),0 0 0 1px rgba(0,0,0,.05);transform:rotate(-2.5deg);font-family:"Fraunces",serif;font-weight:700;font-size:21px;color:#1a1a1a}
   .karten-text{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
@@ -51,6 +51,17 @@
   footer{border-top:1.5px solid var(--steinzeug-tief);max-width:1080px;margin:0 auto;padding:26px 24px 60px;font-size:13px;color:#6b675d}
   footer code{font-family:"IBM Plex Mono",monospace;font-size:12px}
   @media (prefers-reduced-motion:reduce){.karte,.chip{transition:none}.karte:hover{transform:none}}
+  .lightbox{position:fixed;inset:0;background:rgba(20,18,14,.92);display:flex;align-items:center;justify-content:center;z-index:100;padding:min(60px,6vh) min(70px,6vw)}
+  .lightbox[hidden]{display:none}
+  .lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  .lb-nummer{position:absolute;top:18px;left:50%;transform:translateX(-50%);color:#F2F0E9;font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.08em;opacity:.8}
+  .lb-btn{position:absolute;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.4);color:#F2F0E9;border-radius:999px;width:44px;height:44px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+  .lb-btn:hover{background:rgba(255,255,255,.22)}
+  .lb-btn:focus-visible{outline:3px solid var(--bernstein);outline-offset:2px}
+  #lb-close{top:18px;right:18px}
+  #lb-prev{left:12px;top:50%;transform:translateY(-50%)}
+  #lb-next{right:12px;top:50%;transform:translateY(-50%)}
+  @media (max-width:640px){.lb-btn{width:38px;height:38px;font-size:17px}}
 </style>
 </head>
 <body>
@@ -67,6 +78,14 @@
 <div class="filter" id="filter" role="toolbar" aria-label="Nach Kategorie filtern"></div>
 <main class="raster" id="raster"></main>
 
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Krug-Vollbildansicht">
+  <span class="lb-nummer" id="lb-nummer"></span>
+  <button class="lb-btn" id="lb-close" type="button" aria-label="Schließen">&times;</button>
+  <button class="lb-btn" id="lb-prev" type="button" aria-label="Vorheriges Bild">&#8249;</button>
+  <img id="lb-img" src="" alt="">
+  <button class="lb-btn" id="lb-next" type="button" aria-label="Nächstes Bild">&#8250;</button>
+</div>
+
 <footer>
   <b>Version 4 · vollständiger Katalog, 450 Krüge.</b> Jedes Front-Foto stammt aus der Excel-Spalte
   „Front-Foto (IMG-Dateiname)“. Bilder werden aus dem Ordner <code>bilder/</code> geladen
@@ -75,7 +94,7 @@
 
 <script>
 const KRUEGE = [
- {nr:1, titel:"Steyrer Hans 1848-1906", kat:"Oktoberfest", img:"IMG_2377.JPG", jahr:1906, wert:63, notiz:"Deckelmotiv mit historischer Schausteller-Figur - eventuell Sonderedition, kein Standardkrug"},
+ {nr:1, titel:"Oktoberfest 2014", kat:"Oktoberfest", img:"IMG_2377.JPG", jahr:2014, wert:63, notiz:"Deckelmotiv mit historischer Schausteller-Figur - eventuell Sonderedition, kein Standardkrug"},
  {nr:2, titel:"KGL. Hof-Bräuhaus München, Krone + HB-Monogramm, Zinndeckel gleiche…", kat:"Brauerei", img:"IMG_2380.JPG", jahr:null, wert:38, notiz:"Häufiger Brauereikrug, moderate Erwartung"},
  {nr:3, titel:"200 Jahre Auer Dult / Jakobi Dult Jubiläumskrug, Porzellan…", kat:"Sonstiges", img:"IMG_2383.JPG", jahr:null, wert:50, notiz:"Nachkriegsware (W.Germany-Marke), lokales Münchner Volksfest-Motiv"},
  {nr:4, titel:"Junge Weiber altes Geld liebt man in der ganzen Welt", kat:"Sonstiges", img:"IMG_2387.JPG", jahr:1900, wert:75, notiz:"Sprüchekrug ca. um 1900, Serien-Nummerierung auf Deckelmedaille"},
@@ -184,7 +203,7 @@ const KRUEGE = [
  {nr:107, titel:"350 Jahre Paulanerbräu München, 1634-1984", kat:"Brauerei", img:"IMG_2793.JPG", jahr:1984, wert:50},
  {nr:108, titel:"Oktoberfest München 1978", kat:"Oktoberfest", img:"IMG_2796.JPG", jahr:1978, wert:55, notiz:"Cornelia von Seidlheim auf dem boden"},
  {nr:109, titel:"200 Jahre Oktoberfest München 1810-2010", kat:"Oktoberfest", img:"IMG_2798.JPG", jahr:2010, wert:100, notiz:"HIGHLIGHT: Laut Bodenmarke offizieller Jubiläumskrug in limitierter Auflage, Design von Tita Gronemeyer - noch in Originalfolie…", hl:true},
- {nr:110, titel:"Oktoberfest München, 21. September bis 6. Oktober 1997", kat:"Oktoberfest", img:"IMG_2801.JPG", jahr:1997, wert:76, notiz:"Bodenmarke identifiziert Hersteller eindeutig als Rastal (Grenzhausen) - vergleichsweise selten mit Herstellerangabe."},
+ {nr:110, titel:"Oktoberfest 1991", kat:"Oktoberfest", img:"IMG_2801.JPG", jahr:1991, wert:76, notiz:"Bodenmarke identifiziert Hersteller eindeutig als Rastal (Grenzhausen) - vergleichsweise selten mit Herstellerangabe."},
  {nr:111, titel:"Feuer im Blut, das Herz frohgemut", kat:"Sonstiges", img:"IMG_2804.JPG", jahr:null, wert:50, notiz:"Vereinskürzel KBVB - Königlich Bayerischer Veteranen und Kriegerverein"},
  {nr:112, titel:"Porzellan-Genrekrug", kat:"Sonstiges", img:"IMG_2809.JPG", jahr:null, wert:50},
  {nr:113, titel:"Zufrieden sein, großes Glück / Zufrieden bleiben, Meisterstück", kat:"Sonstiges", img:"IMG_2812.JPG", jahr:null, wert:50},
@@ -523,7 +542,7 @@ const KRUEGE = [
  {nr:446, titel:"200 Jahre Kirchweihdult, limitiert 1797-1997", kat:"Sonstiges", img:"IMG_3906.JPG", jahr:1997, wert:null},
  {nr:447, titel:"700 Jahre Auer Dult, Jakobidult 1310, limitiert 2010", kat:"Sonstiges", img:"IMG_3909.JPG", jahr:2010, wert:null},
  {nr:448, titel:"'Ehrenkrug von Ruprecht' - moderner Festkrug", kat:"Sonstiges", img:"IMG_3912.JPG", jahr:null, wert:null, notiz:"HIGHLIGHT: Lithophanie im Boden bestätigt.", hl:true},
- {nr:449, titel:"200 Jahre Auer Dult (3. Exemplar)", kat:"Sonstiges", img:"IMG_3914.JPG", jahr:null, wert:null},
+ {nr:449, titel:"200 Jahre Auer Dult (3. Exemplar)", kat:"Sonstiges", img:"IMG_3915.JPG", jahr:null, wert:null},
  {nr:450, titel:"Gruß aus Passau, handbemalter Glasbecher", kat:"Glas", img:"IMG_3918.JPG", jahr:null, wert:null, notiz:"Letztes Stück des aktuellen Fotobestands.", hl:true},
 ];
 
@@ -540,12 +559,13 @@ const FILTER_KATEGORIEN=[
 function zeichneFilter(){
   filter.innerHTML=FILTER_KATEGORIEN.map(({key,label})=>`<button class="chip${key===aktiv?" aktiv":""}" data-k="${key}">${label}</button>`).join("");
 }
+let aktuelleListe=[];
 function zeichneRaster(){
-  const liste=KRUEGE.filter(k=>aktiv==="Alle"||k.kat===aktiv);
-  raster.innerHTML=liste.map(k=>`
+  aktuelleListe=KRUEGE.filter(k=>aktiv==="Alle"||k.kat===aktiv);
+  raster.innerHTML=aktuelleListe.map((k,i)=>`
     <article class="karte">
       <div class="bildbox">
-        <img src="bilder/${k.img}" alt="Krug ${k.nr}: ${k.titel}"
+        <img src="bilder/${k.img}" alt="Krug ${k.nr}: ${k.titel}" data-idx="${i}"
              onerror="this.remove();this.parentElement.insertAdjacentHTML('beforeend','<div class=platzhalter>\uD83C\uDF7A</div>')">
         <div class="nummernkarte">${k.nr}</div>
       </div>
@@ -559,6 +579,46 @@ function zeichneStats(){
   document.getElementById("st-anzahl").textContent=KRUEGE.length+" / 450";
 }
 filter.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;aktiv=b.dataset.k;zeichneFilter();zeichneRaster();});
+
+const lightbox=document.getElementById("lightbox");
+const lbImg=document.getElementById("lb-img");
+const lbNummer=document.getElementById("lb-nummer");
+const lbPrev=document.getElementById("lb-prev");
+const lbNext=document.getElementById("lb-next");
+let lbIndex=-1;
+function zeigeLightboxBild(){
+  const k=aktuelleListe[lbIndex];
+  lbImg.src="bilder/"+k.img;
+  lbImg.alt="Krug "+k.nr+": "+k.titel;
+  lbNummer.textContent="Krug "+k.nr+" / "+aktuelleListe.length;
+  lbPrev.hidden=lbIndex<=0;
+  lbNext.hidden=lbIndex>=aktuelleListe.length-1;
+}
+function oeffneLightbox(i){
+  lbIndex=i;
+  zeigeLightboxBild();
+  lightbox.hidden=false;
+}
+function schliesseLightbox(){
+  lightbox.hidden=true;
+  lbImg.src="";
+}
+raster.addEventListener("click",e=>{
+  const img=e.target.closest(".bildbox img");
+  if(!img||img.dataset.idx===undefined)return;
+  oeffneLightbox(Number(img.dataset.idx));
+});
+document.getElementById("lb-close").addEventListener("click",schliesseLightbox);
+lbPrev.addEventListener("click",()=>{if(lbIndex>0){lbIndex--;zeigeLightboxBild();}});
+lbNext.addEventListener("click",()=>{if(lbIndex<aktuelleListe.length-1){lbIndex++;zeigeLightboxBild();}});
+lightbox.addEventListener("click",e=>{if(e.target===lightbox)schliesseLightbox();});
+document.addEventListener("keydown",e=>{
+  if(lightbox.hidden)return;
+  if(e.key==="Escape")schliesseLightbox();
+  else if(e.key==="ArrowLeft"&&lbIndex>0){lbIndex--;zeigeLightboxBild();}
+  else if(e.key==="ArrowRight"&&lbIndex<aktuelleListe.length-1){lbIndex++;zeigeLightboxBild();}
+});
+
 zeichneFilter();zeichneRaster();zeichneStats();
 </script>
 </body>
