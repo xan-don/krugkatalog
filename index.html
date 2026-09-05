@@ -60,21 +60,11 @@
     <h1>Bierkrug-Katalog</h1>
     <div class="stats">
       <div class="stat"><b id="st-anzahl">–</b><span>Krüge erfasst</span></div>
-      <div class="stat"><b id="st-highlights">–</b><span>Highlights</span></div>
     </div>
   </div>
 </header>
 
 <div class="filter" id="filter" role="toolbar" aria-label="Nach Kategorie filtern"></div>
-<div class="sortleiste" id="sortleiste">
-  <label for="sortSelect">Sortieren nach:</label>
-  <select id="sortSelect">
-    <option value="">Nummer</option>
-    <option value="jahr">Jahr</option>
-    <option value="seltenheit">Seltenheit</option>
-  </select>
-  <button id="sortRichtung" class="chip" type="button" disabled>↑ Aufsteigend</button>
-</div>
 <main class="raster" id="raster"></main>
 
 <footer>
@@ -539,11 +529,7 @@ const KRUEGE = [
 
 const raster=document.getElementById("raster");
 const filter=document.getElementById("filter");
-const sortSelect=document.getElementById("sortSelect");
-const sortRichtung=document.getElementById("sortRichtung");
 let aktiv="Alle";
-let sortiereNach="";
-let sortRichtungAuf=true;
 const FILTER_KATEGORIEN=[
   {key:"Alle", label:"Alle"},
   {key:"Reservistenkrug", label:"Reservistenkrüge"},
@@ -554,47 +540,26 @@ const FILTER_KATEGORIEN=[
 function zeichneFilter(){
   filter.innerHTML=FILTER_KATEGORIEN.map(({key,label})=>`<button class="chip${key===aktiv?" aktiv":""}" data-k="${key}">${label}</button>`).join("");
 }
-function sortiereListe(liste){
-  if(!sortiereNach) return liste;
-  const feld=sortiereNach==="jahr"?"jahr":"wert";
-  return liste.slice().sort((a,b)=>{
-    const av=a[feld], bv=b[feld];
-    if(av==null&&bv==null) return 0;
-    if(av==null) return 1;
-    if(bv==null) return -1;
-    return sortRichtungAuf?av-bv:bv-av;
-  });
-}
 function zeichneRaster(){
-  let liste=KRUEGE.filter(k=>aktiv==="Alle"||k.kat===aktiv);
-  liste=sortiereListe(liste);
+  const liste=KRUEGE.filter(k=>aktiv==="Alle"||k.kat===aktiv);
   raster.innerHTML=liste.map(k=>`
     <article class="karte">
       <div class="bildbox">
-        ${k.hl?'<div class="highlight-band">Highlight</div>':""}
         <img src="bilder/${k.img}" alt="Krug ${k.nr}: ${k.titel}"
              onerror="this.remove();this.parentElement.insertAdjacentHTML('beforeend','<div class=platzhalter>\uD83C\uDF7A</div>')">
         <div class="nummernkarte">${k.nr}</div>
       </div>
       <div class="karten-text">
         <div class="titel">${k.titel}</div>
-        ${k.notiz?`<div class="notiz">${k.notiz}</div>`:""}
         <div class="meta"><span class="kategorie">${k.kat}</span>${k.jahr?`<span class="preis">${k.jahr}</span>`:""}</div>
       </div>
     </article>`).join("");
 }
 function zeichneStats(){
   document.getElementById("st-anzahl").textContent=KRUEGE.length+" / 450";
-  document.getElementById("st-highlights").textContent=KRUEGE.filter(k=>k.hl).length;
 }
 filter.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;aktiv=b.dataset.k;zeichneFilter();zeichneRaster();});
-function aktualisiereSortUI(){
-  sortRichtung.disabled=!sortiereNach;
-  sortRichtung.textContent=sortRichtungAuf?"↑ Aufsteigend":"↓ Absteigend";
-}
-sortSelect.addEventListener("change",()=>{sortiereNach=sortSelect.value;aktualisiereSortUI();zeichneRaster();});
-sortRichtung.addEventListener("click",()=>{sortRichtungAuf=!sortRichtungAuf;aktualisiereSortUI();zeichneRaster();});
-zeichneFilter();zeichneRaster();zeichneStats();aktualisiereSortUI();
+zeichneFilter();zeichneRaster();zeichneStats();
 </script>
 </body>
 </html>
