@@ -49,6 +49,20 @@
   .notiz{font-size:13px;color:#5c584f}
   .highlight-band{background:var(--bernstein);color:#fff;font:600 10.5px "Source Sans 3",sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;position:absolute;right:0;top:0;border-radius:0 0 0 8px}
   @media (prefers-reduced-motion:reduce){.karte,.chip{transition:none}.karte:hover{transform:none}}
+  .interesse-btn{align-self:flex-start;border:1.5px solid var(--kobalt);color:var(--kobalt);background:transparent;border-radius:999px;padding:5px 14px;font:600 12.5px "Source Sans 3",sans-serif;cursor:pointer;transition:background .15s,color .15s}
+  .interesse-btn:hover{background:var(--kobalt);color:#fff}
+  .interesse-btn:focus-visible{outline:3px solid var(--bernstein);outline-offset:2px}
+  .lb-interesse{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);border:1.5px solid rgba(255,255,255,.6);color:#F2F0E9;background:rgba(255,255,255,.1);border-radius:999px;padding:8px 20px;font:600 13.5px "Source Sans 3",sans-serif;cursor:pointer;transition:background .15s}
+  .lb-interesse:hover{background:rgba(255,255,255,.22)}
+  .lb-interesse:focus-visible{outline:3px solid var(--bernstein);outline-offset:2px}
+  .interesse-modal{position:fixed;inset:0;background:rgba(20,18,14,.6);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+  .interesse-modal[hidden]{display:none}
+  .interesse-box{background:var(--karte);border-radius:10px;max-width:480px;width:100%;padding:22px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+  .interesse-schliessen{position:absolute;top:10px;right:10px;border:none;background:transparent;font-size:22px;color:var(--zinn);cursor:pointer;line-height:1;padding:4px 8px}
+  .interesse-schliessen:hover{color:var(--tinte)}
+  .interesse-hinweis{font-size:14px;margin-bottom:14px;padding-right:20px}
+  .interesse-frame{width:100%;height:520px;border:none;display:block}
+  @media (max-width:480px){.interesse-frame{height:620px}}
   .lightbox{position:fixed;inset:0;background:rgba(20,18,14,.92);display:flex;align-items:center;justify-content:center;z-index:100;padding:min(60px,6vh) min(70px,6vw)}
   .lightbox[hidden]{display:none}
   .lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
@@ -82,6 +96,15 @@
   <button class="lb-btn" id="lb-prev" type="button" aria-label="Vorheriges Bild">&#8249;</button>
   <img id="lb-img" src="" alt="">
   <button class="lb-btn" id="lb-next" type="button" aria-label="Nächstes Bild">&#8250;</button>
+  <button class="lb-interesse" id="lb-interesse" type="button">Interessiert?</button>
+</div>
+
+<div class="interesse-modal" id="interesseModal" hidden role="dialog" aria-modal="true" aria-label="Interesse anmelden">
+  <div class="interesse-box">
+    <button class="interesse-schliessen" id="interesseSchliessen" type="button" aria-label="Schließen">&times;</button>
+    <p class="interesse-hinweis" id="interesseHinweis"></p>
+    <iframe class="interesse-frame" id="interesseFrame" src="" title="Interesse-Formular"></iframe>
+  </div>
 </div>
 
 
@@ -567,6 +590,7 @@ function zeichneRaster(){
       <div class="karten-text">
         <div class="titel">${k.titel}</div>
         <div class="meta"><span class="kategorie">${k.kat}</span>${k.jahr?`<span class="preis">${k.jahr}</span>`:""}</div>
+        <button class="interesse-btn" type="button" data-nr="${k.nr}">Interessiert?</button>
       </div>
     </article>`).join("");
 }
@@ -599,16 +623,46 @@ function schliesseLightbox(){
   lbImg.src="";
 }
 raster.addEventListener("click",e=>{
+  const interesseBtn=e.target.closest(".interesse-btn");
+  if(interesseBtn){oeffneInteresse(Number(interesseBtn.dataset.nr));return;}
   const img=e.target.closest(".bildbox img");
   if(!img||img.dataset.idx===undefined)return;
   oeffneLightbox(Number(img.dataset.idx));
 });
+document.getElementById("lb-interesse").addEventListener("click",()=>{
+  const k=aktuelleListe[lbIndex];
+  if(k)oeffneInteresse(k.nr);
+});
+
+// --- "Interessiert?" -> privates Google-Formular ---
+const GOOGLE_FORM_ID="1FAIpQLSfGhNudRPrSF7i03rPLIk4-zRH9jtnBGJD708kclbt7AyGA9Q";
+const GOOGLE_FORM_ENTRY_KRUG="1487669859";
+
+const interesseModal=document.getElementById("interesseModal");
+const interesseFrame=document.getElementById("interesseFrame");
+const interesseHinweis=document.getElementById("interesseHinweis");
+
+function oeffneInteresse(nr){
+  const k=KRUEGE.find(x=>x.nr===nr);
+  if(!k)return;
+  const krugText="Krug Nr. "+k.nr+": "+k.titel;
+  interesseHinweis.textContent="Du interessierst dich für „"+krugText+"“ – trag einfach deinen Namen ein, ich melde mich bei dir!";
+  interesseFrame.src="https://docs.google.com/forms/d/e/"+GOOGLE_FORM_ID+"/viewform?embedded=true&entry."+GOOGLE_FORM_ENTRY_KRUG+"="+encodeURIComponent(krugText);
+  interesseModal.hidden=false;
+}
+function schliesseInteresse(){
+  interesseModal.hidden=true;
+  interesseFrame.src="";
+}
+document.getElementById("interesseSchliessen").addEventListener("click",schliesseInteresse);
+interesseModal.addEventListener("click",e=>{if(e.target===interesseModal)schliesseInteresse();});
+document.addEventListener("keydown",e=>{if(!interesseModal.hidden&&e.key==="Escape")schliesseInteresse();});
 document.getElementById("lb-close").addEventListener("click",schliesseLightbox);
 lbPrev.addEventListener("click",()=>{if(lbIndex>0){lbIndex--;zeigeLightboxBild();}});
 lbNext.addEventListener("click",()=>{if(lbIndex<aktuelleListe.length-1){lbIndex++;zeigeLightboxBild();}});
 lightbox.addEventListener("click",e=>{if(e.target===lightbox)schliesseLightbox();});
 document.addEventListener("keydown",e=>{
-  if(lightbox.hidden)return;
+  if(lightbox.hidden||!interesseModal.hidden)return;
   if(e.key==="Escape")schliesseLightbox();
   else if(e.key==="ArrowLeft"&&lbIndex>0){lbIndex--;zeigeLightboxBild();}
   else if(e.key==="ArrowRight"&&lbIndex<aktuelleListe.length-1){lbIndex++;zeigeLightboxBild();}
