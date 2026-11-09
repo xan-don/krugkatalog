@@ -244,7 +244,7 @@ const KRUEGE = [
  {nr:271, titel:"Wie Nr. 268 - zweites Exemplar (Unteroffizier Kameradschaft WBK…", kat:"Sonstiges", img:"IMG_3188.JPG", jahr:null, wert:32, notiz:"Duplikat von Nr. 268."},
  {nr:275, titel:"Wieder-Eröffnung des Wies'n-Bahnhof's", kat:"Sonstiges", img:"IMG_3199.JPG", jahr:null, wert:50, notiz:"Vgl. Nr. 256 - gleiches Motiv, hier jedoch mit Zinndeckel."},
  {nr:295, titel:"Hacker-Pschorr Bräu München", kat:"Brauerei", img:"IMG_3266.JPG", jahr:null, wert:50, notiz:"Kärtchennummer jetzt eindeutig als '295' bestätigt."},
- {nr:326, titel:"Reinhold Merkelbach, Höhr-Grenzhausen", kat:"Sonstiges", img:"IMG_3347.JPG", jahr:null, wert:100, notiz:"HIGHLIGHT: identifizierte anerkannte Manufaktur Reinhold Merkelbach (wie bei Nr. 98).", hl:true, interested:true},
+ {nr:326, titel:"Reinhold Merkelbach, Höhr-Grenzhausen", kat:"Sonstiges", img:"IMG_3347.JPG", jahr:null, wert:100, notiz:"HIGHLIGHT: identifizierte anerkannte Manufaktur Reinhold Merkelbach (wie bei Nr. 98).", hl:true},
  {nr:328, titel:"Landesverband ehem. Landwirtschaftsschüler in Bayern - Einigkeit macht stark", kat:"Sonstiges", img:"IMG_3353.JPG", jahr:null, wert:50},
  {nr:329, titel:"Vor dem Tanz", kat:"Andenken", img:"IMG_3355.JPG", jahr:null, wert:50},
  {nr:331, titel:"Richard Süßmeier", kat:"Andenken", img:"IMG_3362.JPG", jahr:null, wert:80, notiz:"HIGHLIGHT: personalisiertes Stück - möglicherweise dieselbe Person wie 'Festwirt Richard Süßmeier' (vgl. Nr. 248) - Zusammenhang…", hl:true},
@@ -284,15 +284,14 @@ const FILTER_KATEGORIEN=[
   {key:"Oktoberfest", label:"Oktoberfest"},
   {key:"Zunftkrüge", label:"Zunftkrüge"},
   {key:"Glas", label:"Glaskrüge"},
-  {key:"Kindl", label:"Münchner Kindl"},
-  {key:"Interested", label:"Interested"}
+  {key:"Kindl", label:"Münchner Kindl"}
 ];
 function zeichneFilter(){
   filter.innerHTML=FILTER_KATEGORIEN.map(({key,label})=>`<button class="chip${key===aktiv?" aktiv":""}" data-k="${key}">${label}</button>`).join("");
 }
 let aktuelleListe=[];
 function zeichneRaster(){
-  aktuelleListe=KRUEGE.filter(k=>aktiv==="Alle"||(aktiv==="Kindl"?k.kindl:aktiv==="Glas"?(k.kat==="Glas"||k.glas):aktiv==="Interested"?k.interested:k.kat===aktiv));
+  aktuelleListe=KRUEGE.filter(k=>aktiv==="Alle"||(aktiv==="Kindl"?k.kindl:aktiv==="Glas"?(k.kat==="Glas"||k.glas):k.kat===aktiv));
   raster.innerHTML=aktuelleListe.map((k,i)=>`
     <article class="karte${k.vergeben?" vergeben":""}">
       <div class="bildbox">
