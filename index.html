@@ -290,10 +290,29 @@ function zeichneFilter(){
   filter.innerHTML=FILTER_KATEGORIEN.map(({key,label})=>`<button class="chip${key===aktiv?" aktiv":""}" data-k="${key}">${label}</button>`).join("");
 }
 let aktuelleListe=[];
+
+// --- Reservierungen: veröffentlichtes Blatt "Reserviert" der Formular-Antworttabelle (nur Krugnummern, keine Namen) ---
+const RESERVIERT_CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSbVO8VmNjqHyDjEAR0aJHZN7CkTa1rAVoE_3_FFyysBvwKAL7OJuXFVFTgJ_Tk09EBCR03Ya3YVnVN/pub?gid=1784241189&single=true&output=csv";
+let reserviert=new Set();
+function ladeReservierungen(){
+  if(!RESERVIERT_CSV_URL)return Promise.resolve();
+  return fetch(RESERVIERT_CSV_URL,{cache:"no-store"})
+    .then(r=>r.ok?r.text():Promise.reject())
+    .then(t=>{
+      reserviert=new Set((t.match(/\d+/g)||[]).map(Number));
+      zeichneRaster();
+      if(!lightbox.hidden)zeigeLightboxBild();
+    })
+    .catch(()=>{});
+}
+function hinweis(k){
+  return k.vergeben?"Nicht mehr verfügbar":reserviert.has(k.nr)?"Bereits reserviert":"";
+}
+
 function zeichneRaster(){
   aktuelleListe=KRUEGE.filter(k=>aktiv==="Alle"||(aktiv==="Kindl"?k.kindl:aktiv==="Glas"?(k.kat==="Glas"||k.glas):k.kat===aktiv));
   raster.innerHTML=aktuelleListe.map((k,i)=>`
-    <article class="karte${k.vergeben?" vergeben":""}">
+    <article class="karte${hinweis(k)?" vergeben":""}">
       <div class="bildbox">
         <img src="bilder/${k.img}" alt="Krug ${k.nr}: ${k.titel}" data-idx="${i}"
              onerror="this.remove();this.parentElement.insertAdjacentHTML('beforeend','<div class=platzhalter>\uD83C\uDF7A</div>')">
@@ -302,7 +321,7 @@ function zeichneRaster(){
       <div class="karten-text">
         <div class="titel">${k.titel}</div>
         <div class="meta"><span class="kategorie">${k.kat}</span>${k.jahr?`<span class="preis">${k.jahr}</span>`:""}</div>
-        ${k.vergeben?`<span class="vergeben-hinweis">Nicht mehr verfügbar</span>`:`<button class="interesse-btn" type="button" data-nr="${k.nr}">Interessiert?</button>`}
+        ${hinweis(k)?`<span class="vergeben-hinweis">${hinweis(k)}</span>`:`<button class="interesse-btn" type="button" data-nr="${k.nr}">Interessiert?</button>`}
       </div>
     </article>`).join("");
 }
@@ -318,9 +337,10 @@ function zeigeLightboxBild(){
   const k=aktuelleListe[lbIndex];
   lbImg.src="bilder/"+k.img;
   lbImg.alt="Krug "+k.nr+": "+k.titel;
-  lbNummer.textContent="Krug "+k.nr+" / "+aktuelleListe.length+(k.vergeben?" · nicht mehr verfügbar":"");
-  lbImg.style.filter=k.vergeben?"grayscale(1)":"";
-  document.getElementById("lb-interesse").hidden=!!k.vergeben;
+  const h=hinweis(k);
+  lbNummer.textContent="Krug "+k.nr+" / "+aktuelleListe.length+(h?" · "+h.toLowerCase():"");
+  lbImg.style.filter=h?"grayscale(1)":"";
+  document.getElementById("lb-interesse").hidden=!!h;
   lbPrev.hidden=lbIndex<=0;
   lbNext.hidden=lbIndex>=aktuelleListe.length-1;
 }
@@ -342,7 +362,7 @@ raster.addEventListener("click",e=>{
 });
 document.getElementById("lb-interesse").addEventListener("click",()=>{
   const k=aktuelleListe[lbIndex];
-  if(k&&!k.vergeben)oeffneInteresse(k.nr);
+  if(k&&!hinweis(k))oeffneInteresse(k.nr);
 });
 
 // --- "Interessiert?" -> privates Google-Formular ---
@@ -354,12 +374,15 @@ const interesseFrame=document.getElementById("interesseFrame");
 const interesseHinweis=document.getElementById("interesseHinweis");
 
 function oeffneInteresse(nr){
-  const k=KRUEGE.find(x=>x.nr===nr);
-  if(!k)return;
-  const krugText="Krug Nr. "+k.nr+": "+k.titel;
-  interesseHinweis.textContent="Du interessierst dich für „"+krugText+"“ – trag einfach deinen Namen ein, ich melde mich bei dir!";
-  interesseFrame.src="https://docs.google.com/forms/d/e/"+GOOGLE_FORM_ID+"/viewform?embedded=true&entry."+GOOGLE_FORM_ENTRY_KRUG+"="+encodeURIComponent(krugText);
-  interesseModal.hidden=false;
+  // Vor dem Öffnen frisch prüfen, ob der Krug inzwischen reserviert wurde (first come, first serve)
+  ladeReservierungen().then(()=>{
+    const k=KRUEGE.find(x=>x.nr===nr);
+    if(!k||hinweis(k))return;
+    const krugText="Krug Nr. "+k.nr+": "+k.titel;
+    interesseHinweis.textContent="Du interessierst dich für „"+krugText+"“ – trag einfach deinen Namen ein, ich melde mich bei dir!";
+    interesseFrame.src="https://docs.google.com/forms/d/e/"+GOOGLE_FORM_ID+"/viewform?embedded=true&entry."+GOOGLE_FORM_ENTRY_KRUG+"="+encodeURIComponent(krugText);
+    interesseModal.hidden=false;
+  });
 }
 function schliesseInteresse(){
   interesseModal.hidden=true;
@@ -379,7 +402,7 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="ArrowRight"&&lbIndex<aktuelleListe.length-1){lbIndex++;zeigeLightboxBild();}
 });
 
-zeichneFilter();zeichneRaster();
+zeichneFilter();zeichneRaster();ladeReservierungen();
 </script>
 </body>
 </html>
