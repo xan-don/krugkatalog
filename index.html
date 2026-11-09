@@ -34,6 +34,9 @@
   .raster{max-width:1080px;margin:0 auto;padding:20px 24px 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px}
   .karte{background:var(--karte);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(38,36,31,.12);display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s}
   .karte:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(38,36,31,.16)}
+  .karte.vergeben{opacity:.55}
+  .karte.vergeben img{filter:grayscale(1)}
+  .vergeben-hinweis{align-self:flex-start;font:600 12.5px "Source Sans 3",sans-serif;color:var(--zinn);padding:5px 0}
   .bildbox{position:relative;aspect-ratio:3/4;background:var(--steinzeug-tief);display:flex;align-items:center;justify-content:center;overflow:hidden}
   .bildbox img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
   .platzhalter{font-family:"Fraunces",serif;font-size:56px;color:var(--zinn);opacity:.55}
@@ -108,20 +111,20 @@ const KRUEGE = [
  {nr:3, titel:"200 Jahre Auer Dult / Jakobi Dult Jubiläumskrug, Porzellan…", kat:"Sonstiges", img:"IMG_2383.JPG", jahr:null, wert:50, notiz:"Nachkriegsware (W.Germany-Marke), lokales Münchner Volksfest-Motiv"},
  {nr:4, titel:"Junge Weiber altes Geld liebt man in der ganzen Welt", kat:"Sonstiges", img:"IMG_2387.JPG", jahr:1900, wert:75, notiz:"Sprüchekrug ca. um 1900, Serien-Nummerierung auf Deckelmedaille", glas:true},
  {nr:9, titel:"Pressglas-Krug mit reliefiertem Rautenmuster, aufwendiger…", kat:"Sonstiges", img:"IMG_2403.JPG", jahr:null, wert:50, notiz:"Bernsteinfarbener Deckelstein ist ein Pluspunkt", glas:true},
- {nr:10, titel:"Bierbrauerei zum Augustiner München J.W.", kat:"Brauerei", img:"IMG_2406.JPG", jahr:null, wert:38, notiz:"Historische Firmierung 'J.W.' - älter als Standardware, aufwendiger Umlaufdekor"},
+ {nr:10, titel:"Bierbrauerei zum Augustiner München J.W.", kat:"Brauerei", img:"IMG_2406.JPG", jahr:null, wert:38, notiz:"Historische Firmierung 'J.W.' - älter als Standardware, aufwendiger Umlaufdekor", vergeben:true},
  {nr:12, titel:"Bräuwastl", kat:"Brauerei", img:"IMG_2412.JPG", jahr:null, wert:50, notiz:"Namensgravur 'Martin' auf Deckel - reduziert Sammlerkreis"},
  {nr:14, titel:"Schützenkrug, Steinzeug", kat:"Sonstiges", img:"IMG_2418.JPG", jahr:null, wert:50, notiz:"Identisch mit Nr. 15 (Doppelstück)"},
  {nr:15, titel:"Schützenkrug, Steinzeug", kat:"Sonstiges", img:"IMG_2421.JPG", jahr:null, wert:50, notiz:"Identisch mit Nr. 14 (Doppelstück)"},
  {nr:17, titel:"Bleikristall-/Kristallglaskrug mit tiefem Schliffdekor (Rauten…", kat:"Sonstiges", img:"IMG_2427.JPG", jahr:null, wert:58, notiz:"Deutlich hochwertiger als Nr. 9 (Handschliff statt Pressglas)", glas:true},
  {nr:22, titel:"München", kat:"Sonstiges", img:"IMG_2530.JPG", jahr:null, wert:50, notiz:"Kein Zinndeckel vorhanden (Öffnungsfoto statt Deckelfoto). Keine Bodenmarke erkennbar.", kindl:true},
- {nr:25, titel:"...dem Hochzeitsfest(e)...", kat:"Sonstiges", img:"IMG_2541.JPG", jahr:null, wert:50, notiz:"Deckelfoto von oben jetzt nachgereicht (IMG_2542): gewölbter Zinndeckel mit Blüten-Daumenrast und geripptem Knospenknauf…"},
+ {nr:25, titel:"...dem Hochzeitsfest(e)...", kat:"Sonstiges", img:"IMG_2541.JPG", jahr:null, wert:50, notiz:"Deckelfoto von oben jetzt nachgereicht (IMG_2542): gewölbter Zinndeckel mit Blüten-Daumenrast und geripptem Knospenknauf…", vergeben:true},
  {nr:26, titel:"Tölzer Jubiläumskrug", kat:"Sonstiges", img:"IMG_2544.JPG", jahr:null, wert:50, notiz:"Bodenstempel (grün) noch genauer zu identifizieren - Foto in hoher Auflösung würde helfen, Manufaktur zu bestimmen."},
- {nr:28, titel:"FestKrug", kat:"Sonstiges", img:"IMG_2551.JPG", jahr:null, wert:50, notiz:"HIGHLIGHT: Bodenlithophanie bestätigt (Porträtbüste). Schwan + bayer. Wappen + 'FestKrug'-Schriftzug - Anlass nicht identifiziert.", hl:true},
+ {nr:28, titel:"FestKrug", kat:"Sonstiges", img:"IMG_2551.JPG", jahr:null, wert:50, notiz:"HIGHLIGHT: Bodenlithophanie bestätigt (Porträtbüste). Schwan + bayer. Wappen + 'FestKrug'-Schriftzug - Anlass nicht identifiziert.", hl:true, vergeben:true},
  {nr:42, titel:"Armbrustschützen[verein]", kat:"Sonstiges", img:"IMG_2599.JPG", jahr:null, wert:56, notiz:"Kein Zinndeckel. Herstellermarke Rastal + handschriftlicher Entwurfs-/Künstlervermerk am Boden - Ort/Verein des…"},
  {nr:49, titel:"Pressglas-Krug mit reliefiertem Bogen-/Ovalfeld-Dekor (facettierte…", kat:"Sonstiges", img:"IMG_2621.JPG", jahr:null, wert:50, notiz:"Rubinroter Glasstein am Daumenrast-Knauf ist ein hübsches Detail, vgl. Nr. 9. Keine Bodenmarke.", glas:true},
  {nr:50, titel:"Nährbier", kat:"Brauerei", img:"IMG_2624.JPG", jahr:null, wert:50, notiz:"Kein Zinndeckel vorhanden. Nährbier-Werbekrüge sind ein Nischenthema (Brauerei-Reklame für alkoholarmes Malzgetränk), für eher…"},
- {nr:52, titel:"J.W.", kat:"Brauerei", img:"IMG_2630.JPG", jahr:null, wert:50, notiz:"Zweites Stück mit Firmierung 'Jos. Wagner' (J.W.) - vgl. Nr. 10, als Paar/Gegenstück im Angebot erwähnenswert."},
- {nr:60, titel:"Hofbräuhaus München", kat:"Brauerei", img:"IMG_2648.JPG", jahr:null, wert:50, notiz:"Vergleichsstück zu Nr. 37 (gleiches Hofbräuhaus-Motiv), hier jedoch als Glaskrug mit aufwendigem figürlichem Zinndeckel -…", glas:true},
+ {nr:52, titel:"J.W.", kat:"Brauerei", img:"IMG_2630.JPG", jahr:null, wert:50, notiz:"Zweites Stück mit Firmierung 'Jos. Wagner' (J.W.) - vgl. Nr. 10, als Paar/Gegenstück im Angebot erwähnenswert.", vergeben:true},
+ {nr:60, titel:"Hofbräuhaus München", kat:"Brauerei", img:"IMG_2648.JPG", jahr:null, wert:50, notiz:"Vergleichsstück zu Nr. 37 (gleiches Hofbräuhaus-Motiv), hier jedoch als Glaskrug mit aufwendigem figürlichem Zinndeckel -…", glas:true, vergeben:true},
  {nr:65, titel:"J.W.", kat:"Brauerei", img:"IMG_2665.JPG", jahr:1990, wert:44, notiz:"WICHTIG: Bodenaufdruck 'Festkrug 1990' zeigt, dass dies eine moderne Neuauflage des Nr. 52-Motivs ist, kein antikes Stück - für…"},
  {nr:67, titel:"Pressglas-Krug mit reliefiertem Facetten-/Arkadendekor (baugleich…", kat:"Sonstiges", img:"IMG_2671.JPG", jahr:null, wert:32, notiz:"Zweites Exemplar dieses Pressglas-Modells mit Farbstein-Daumenrast (vgl. Nr. 49), hier grün statt rubinrot - als Paar/Set für…", glas:true},
  {nr:68, titel:"Käfer", kat:"Sonstiges", img:"IMG_2673.JPG", jahr:null, wert:50, notiz:"Bekannte Münchner Marke 'Käfer' (Feinkost/Catering) - für Sammler von Münchner Firmen-/Gastronomie-Memorabilia interessant…"},
@@ -134,7 +137,7 @@ const KRUEGE = [
  {nr:91, titel:"Wies'n-Bahnhofs", kat:"Oktoberfest", img:"IMG_2737.JPG", jahr:null, wert:56, notiz:"Bodenfoto zeigt echte Herstellermarke 'Rastal, Hoehr-Grenzhausen' - zuvor nicht erfasst. Historisches Oktoberfest-Sammlerstueck…"},
  {nr:103, titel:"Steinzeugkrug, salzglasiert, mit reliefiertem Blattdekor in…", kat:"Sonstiges", img:"IMG_2779.JPG", jahr:1990, wert:50, notiz:"Bodenmarke 'West Germany' bestätigt Herstellung zwischen 1949-1990; Manufaktur selbst nicht eindeutig identifizierbar."},
  {nr:105, titel:"Schlichter Steinzeugkrug mit feiner horizontaler Riffelstruktur…", kat:"Sonstiges", img:"IMG_2787.JPG", jahr:null, wert:50, notiz:"Kartusche im Deckelmedaillon ist unbeschriftet/blanko - vermutlich nie personalisiert."},
- {nr:109, titel:"200 Jahre Oktoberfest München 1810-2010", kat:"Oktoberfest", img:"IMG_2798.JPG", jahr:2010, wert:100, notiz:"HIGHLIGHT: Laut Bodenmarke offizieller Jubiläumskrug in limitierter Auflage, Design von Tita Gronemeyer - noch in Originalfolie…", hl:true},
+ {nr:109, titel:"200 Jahre Oktoberfest München 1810-2010", kat:"Oktoberfest", img:"IMG_2798.JPG", jahr:2010, wert:100, notiz:"HIGHLIGHT: Laut Bodenmarke offizieller Jubiläumskrug in limitierter Auflage, Design von Tita Gronemeyer - noch in Originalfolie…", hl:true, vergeben:true},
  {nr:110, titel:"Oktoberfest 1991", kat:"Oktoberfest", img:"IMG_2801.JPG", jahr:1991, wert:76, notiz:"Bodenmarke identifiziert Hersteller eindeutig als Rastal (Grenzhausen) - vergleichsweise selten mit Herstellerangabe."},
  {nr:115, titel:"175 Jahre Oktoberfest", kat:"Oktoberfest", img:"IMG_2818.JPG", jahr:1810, wert:81, notiz:"175 Jahre Oktoberfest. Deckel: Prinz. Therese Kronzprinz Ludwig I von Bayern. 1. Oktoberfest 1810. Boden: Rastal. Grenzhausen"},
  {nr:117, titel:"Oktoberfest München, 21. September bis 6. Oktober 1991", kat:"Oktoberfest", img:"IMG_2824.JPG", jahr:1991, wert:56, notiz:"Teil derselben Rastal-Jahreskrug-Serie wie Nr. 110 (1997) und vermutlich das zweite Stück unter Nr. 115 - ggf. als…"},
@@ -148,7 +151,7 @@ const KRUEGE = [
  {nr:131, titel:"Prinz-Regent Luitpold, 12. März 1821-1911", kat:"Andenken", img:"IMG_2866.JPG", jahr:1911, wert:75, notiz:"Gedenkkrug zu Ehren von Prinzregent Luitpold (Bayerns langjährigem Regenten) - für Sammler bayerischer Geschichte von Interesse."},
  {nr:134, titel:"Prinz-Regent Luitpold, 12. März 1821-1911", kat:"Andenken", img:"IMG_2875.JPG", jahr:1911, wert:65, notiz:"Bodenmarke bestätigt offizielle Herausgabe durch das Münchner Stadtmuseum 1988/89 - klar dokumentierte Provenienz. Bildet ein…"},
  {nr:135, titel:"F. Wenhorn", kat:"Sonstiges", img:"IMG_2878.JPG", jahr:null, wert:50, notiz:"Name auf dem Deckel schwer leserlich ('F. Menhorn' oder ähnlich) - bitte bei Besichtigung gegenprüfen."},
- {nr:145, titel:"200 Jahre Oktoberfest München", kat:"Oktoberfest", img:"IMG_2998.JPG", jahr:null, wert:100, notiz:"HIGHLIGHT: Teil derselben offiziellen limitierten Jubiläumsserie wie Nr. 109 (Design Tita Gronemeyer), hier andere künstlerische…", hl:true},
+ {nr:145, titel:"200 Jahre Oktoberfest München", kat:"Oktoberfest", img:"IMG_2998.JPG", jahr:null, wert:100, notiz:"HIGHLIGHT: Teil derselben offiziellen limitierten Jubiläumsserie wie Nr. 109 (Design Tita Gronemeyer), hier andere künstlerische…", hl:true, vergeben:true},
  {nr:146, titel:"Till Eulenspiegel in Einbeck...", kat:"Andenken", img:"IMG_3002.JPG", jahr:null, wert:62, notiz:"Teil einer dreiteiligen Till-Eulenspiegel-Serie (mit Nr. 147 und 148), Rink Studio Grenzhausen - ungewöhnlicher künstlerischer…"},
  {nr:147, titel:"Krug mit Federzeichnungs-Illustration einer Till-Eulenspiegel-Szene…", kat:"Andenken", img:"IMG_3006.JPG", jahr:null, wert:50, notiz:"Teil derselben Serie wie Nr. 146/148 (Rink Studio Grenzhausen)."},
  {nr:148, titel:"Till Eulenspiegel in Bamberg. Wie Till um vierundzwanzig Pfennig ab- und nach…", kat:"Andenken", img:"IMG_3008.JPG", jahr:1997, wert:50, notiz:"Vervollständigt die dreiteilige Till-Eulenspiegel-Serie (Nr. 146/147/148), Rink Studio Grenzhausen 1997 - als komplettes Set von…"},
@@ -232,7 +235,7 @@ const KRUEGE = [
  {nr:262, titel:"Paulaner Salvator München", kat:"Brauerei", img:"IMG_3169.JPG", jahr:null, wert:50},
  {nr:263, titel:"Weihenstephan - Bayerische Staatsbrauerei, älteste Brauerei der Welt", kat:"Brauerei", img:"IMG_3170.JPG", jahr:null, wert:50},
  {nr:264, titel:"Spatenbräu München", kat:"Brauerei", img:"IMG_3171.JPG", jahr:null, wert:50},
- {nr:265, titel:"Zum Andenken", kat:"Andenken", img:"IMG_3174.JPG", jahr:null, wert:100, notiz:"HIGHLIGHT: Lithophanie vorhanden (Akt-Motiv im Boden), Blumendekor wirkt handbemalt - bei Besichtigung bestätigen.", hl:true},
+ {nr:265, titel:"Zum Andenken", kat:"Andenken", img:"IMG_3174.JPG", jahr:null, wert:100, notiz:"HIGHLIGHT: Lithophanie vorhanden (Akt-Motiv im Boden), Blumendekor wirkt handbemalt - bei Besichtigung bestätigen.", hl:true, vergeben:true},
  {nr:266, titel:"Schloss Maxlrain - Schlossbrauerei Maxlrain", kat:"Brauerei", img:"IMG_3176.JPG", jahr:null, wert:50},
  {nr:267, titel:"Fürstliche Brauerei Thurn und Taxis Regensburg", kat:"Brauerei", img:"IMG_3178.JPG", jahr:null, wert:50},
  {nr:268, titel:"Unteroffizier Kameradschaft WBK VI/StKp - Zur Erinnerung an meine Dienstzeit", kat:"Sonstiges", img:"IMG_3181.JPG", jahr:null, wert:50, notiz:"Kein historisches Reservistenstück - Bundeswehr-Ära (WBK VI = Wehrbereichskommando VI)."},
@@ -259,7 +262,7 @@ const KRUEGE = [
  {nr:367, titel:"Weihenstephan Fahrertreffen 1987, älteste Brauerei der Welt", kat:"Brauerei", img:"IMG_3564.JPG", jahr:1987, wert:null},
  {nr:374, titel:"HB-Krug, Eisernes-Kreuz-Variante", kat:"Brauerei", img:"IMG_3586.JPG", jahr:null, wert:null},
  {nr:409, titel:"Olympische Spiele München 1972, Maskottchen Waldi", kat:"Sonstiges", img:"IMG_3717.JPG", jahr:1972, wert:null},
- {nr:425, titel:"10. Infanterie-Regiment Prinz Ludwig, Ingolstadt", kat:"Reservistenkrug", img:"IMG_3801.JPG", jahr:1906, wert:null, notiz:"HIGHLIGHT: 5. Kompanie, mit Lithophanie im Boden.", hl:true},
+ {nr:425, titel:"10. Infanterie-Regiment Prinz Ludwig, Ingolstadt", kat:"Reservistenkrug", img:"IMG_3801.JPG", jahr:1906, wert:null, notiz:"HIGHLIGHT: 5. Kompanie, mit Lithophanie im Boden.", hl:true, vergeben:true},
  {nr:432, titel:"50 Jahre Kreissparkasse, 1861-1911", kat:"Sonstiges", img:"IMG_3842.JPG", jahr:1911, wert:null},
  {nr:433, titel:"700 Jahre Markt / 50 Jahre Sparkasse, Bad Tölz", kat:"Sonstiges", img:"IMG_3846.JPG", jahr:1911, wert:null},
  {nr:434, titel:"700 Jahre Markt Tölz, 75 Jahre (3. Exemplar der Serie)", kat:"Sonstiges", img:"IMG_3851.JPG", jahr:null, wert:null},
@@ -291,7 +294,7 @@ let aktuelleListe=[];
 function zeichneRaster(){
   aktuelleListe=KRUEGE.filter(k=>aktiv==="Alle"||(aktiv==="Kindl"?k.kindl:aktiv==="Glas"?(k.kat==="Glas"||k.glas):aktiv==="Interested"?k.interested:k.kat===aktiv));
   raster.innerHTML=aktuelleListe.map((k,i)=>`
-    <article class="karte">
+    <article class="karte${k.vergeben?" vergeben":""}">
       <div class="bildbox">
         <img src="bilder/${k.img}" alt="Krug ${k.nr}: ${k.titel}" data-idx="${i}"
              onerror="this.remove();this.parentElement.insertAdjacentHTML('beforeend','<div class=platzhalter>\uD83C\uDF7A</div>')">
@@ -300,7 +303,7 @@ function zeichneRaster(){
       <div class="karten-text">
         <div class="titel">${k.titel}</div>
         <div class="meta"><span class="kategorie">${k.kat}</span>${k.jahr?`<span class="preis">${k.jahr}</span>`:""}</div>
-        <button class="interesse-btn" type="button" data-nr="${k.nr}">Interessiert?</button>
+        ${k.vergeben?`<span class="vergeben-hinweis">Nicht mehr verfügbar</span>`:`<button class="interesse-btn" type="button" data-nr="${k.nr}">Interessiert?</button>`}
       </div>
     </article>`).join("");
 }
@@ -316,7 +319,9 @@ function zeigeLightboxBild(){
   const k=aktuelleListe[lbIndex];
   lbImg.src="bilder/"+k.img;
   lbImg.alt="Krug "+k.nr+": "+k.titel;
-  lbNummer.textContent="Krug "+k.nr+" / "+aktuelleListe.length;
+  lbNummer.textContent="Krug "+k.nr+" / "+aktuelleListe.length+(k.vergeben?" · nicht mehr verfügbar":"");
+  lbImg.style.filter=k.vergeben?"grayscale(1)":"";
+  document.getElementById("lb-interesse").hidden=!!k.vergeben;
   lbPrev.hidden=lbIndex<=0;
   lbNext.hidden=lbIndex>=aktuelleListe.length-1;
 }
@@ -338,7 +343,7 @@ raster.addEventListener("click",e=>{
 });
 document.getElementById("lb-interesse").addEventListener("click",()=>{
   const k=aktuelleListe[lbIndex];
-  if(k)oeffneInteresse(k.nr);
+  if(k&&!k.vergeben)oeffneInteresse(k.nr);
 });
 
 // --- "Interessiert?" -> privates Google-Formular ---
