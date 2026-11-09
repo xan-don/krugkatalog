@@ -20,9 +20,6 @@
   .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.75;margin-bottom:14px}
   h1{font-family:"Fraunces",serif;font-weight:700;font-size:clamp(34px,5.5vw,58px);line-height:1.04;letter-spacing:-.01em}
   h1 .duenn{font-weight:500;opacity:.85}
-  .stats{display:flex;gap:36px;margin-top:30px;flex-wrap:wrap}
-  .stat b{font-family:"Fraunces",serif;font-size:26px;font-weight:700;display:block}
-  .stat span{font-size:13px;opacity:.75}
   .filter{max-width:1080px;margin:0 auto;padding:22px 24px 6px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .chip{border:1.5px solid var(--kobalt);color:var(--kobalt);background:transparent;border-radius:999px;padding:6px 16px;font:600 13.5px "Source Sans 3",sans-serif;cursor:pointer;transition:background .15s,color .15s}
   .chip:hover{background:rgba(43,74,139,.1)}
@@ -81,9 +78,6 @@
 <header>
   <div class="kopf-innen">
     <h1>Bierkrug-Katalog</h1>
-    <div class="stats">
-      <div class="stat"><b id="st-anzahl">–</b><span>Krüge erfasst</span></div>
-    </div>
   </div>
 </header>
 
@@ -310,9 +304,6 @@ function zeichneRaster(){
       </div>
     </article>`).join("");
 }
-function zeichneStats(){
-  document.getElementById("st-anzahl").textContent=KRUEGE.length+" / 450";
-}
 filter.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;aktiv=b.dataset.k;zeichneFilter();zeichneRaster();});
 
 const lightbox=document.getElementById("lightbox");
@@ -384,7 +375,7 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="ArrowRight"&&lbIndex<aktuelleListe.length-1){lbIndex++;zeigeLightboxBild();}
 });
 
-zeichneFilter();zeichneRaster();zeichneStats();
+zeichneFilter();zeichneRaster();
 </script>
 </body>
 </html>
